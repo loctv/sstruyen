@@ -185,11 +185,14 @@ def read_page(book_id, page_id):
     page = db_pages.search((q.book_id == book_id) & (q.page_id == page_id))[0]
     book = db_books.search(q.book_id == book_id)[0]
     page_view = page['content']
+    
     if not page['downloaded']:
         content = _download_content(page['link'])
         if content:
             db_pages.update({'content': content, 'downloaded': True}, (q.book_id == book_id) & (q.page_id == page_id))
             page_view = content
+    if not page_view:
+        page_view = 'Can not get content for this page'
     header = click.style('%s: Chuong %r/%r: %s' % (book['name'], page['page_id'], book['number_page'], page['name']), bg='blue', bold=True)
     click.echo(header)
     click.echo_via_pager(header + '\n' + page_view)
