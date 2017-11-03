@@ -1,2 +1,2 @@
-def cli():
+def main():
     print 'Doc truyen tu Sstruyen.com'
