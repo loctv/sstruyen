@@ -157,7 +157,7 @@ def view_library():
         List books:
     '''
     books = db_books.all()
-    click.secho('Library: %d books' % len(books), bold=True, bg='blue')
+    click.secho('Library: %d books.' % len(books), bold=True, bg='blue')
     reading = _get_history()
 
     for index, book in enumerate(books):
@@ -190,10 +190,9 @@ def read_page(book_id, page_id):
         if content:
             db_pages.update({'content': content, 'downloaded': True}, (q.book_id == book_id) & (q.page_id == page_id))
             page_view = content
-    click.clear()
-    click.secho('Chuong %r/%r: %s' % (page['page_id'], book['number_page'], page['name']), bg='blue', bold=True)
-    click.secho(page_view)
-
+    header = click.style('%s: Chuong %r/%r: %s' % (book['name'], page['page_id'], book['number_page'], page['name']), bg='blue', bold=True)
+    click.echo(header)
+    click.echo_via_pager(header + '\n' + page_view)
 
 def go_to_page(page_id):
     reading = _get_history()
@@ -212,3 +211,25 @@ def prev_page():
     page_id = _get_history()['page_id']
     go_to_page(page_id - 1)
     # TODO: validate page
+
+def view_index():
+    reading = _get_history()
+    if not reading:
+        print 'Please read to open book before view index'
+    else:
+        book_id, page_id = reading['book_id'], reading['page_id']
+        book = db_books.search(q.book_id == book_id)[0]
+        header = click.style(
+            '\n'
+            '%s\n\n'
+            'author: %s\n'
+            'number pages: %d\n---'
+            % (book['name'], book['author'], book['number_page']), bold=True, bg='blue')
+        pages = sorted(db_pages.search(q.book_id == book_id), key=lambda x: x['page_id'], reverse=False)
+        page_view = header + '\n'
+        for page in pages:
+            if page['page_id'] == page_id:
+                page_view += click.style('%d: %s <reading>\n' % (page['page_id'], page['name']), fg='red')
+            else:
+                page_view += click.style('%d: %s\n' % (page['page_id'], page['name']))
+        click.echo_via_pager(page_view)

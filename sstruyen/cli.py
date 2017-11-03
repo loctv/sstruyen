@@ -40,7 +40,7 @@ def index():
     '''
         Show index of book
     '''
-    pass
+    commands.view_index()
 
 
 @cli.command('n')
