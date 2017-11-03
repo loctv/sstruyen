@@ -1,7 +1,7 @@
 import requests
 import click
 import re
-from bs4 import BeautifulSoup as bs
+from pyquery import PyQuery
 from tinydb import TinyDB, Query
 
 db = TinyDB('db.json')
@@ -27,37 +27,57 @@ def _crawl_book_info(link):
     '''
         Crawl book info
     '''
-    return {
-        'name': 'Tien nghich',
-        'author': 'Nhi can',
-        'number_page': 2302,
-        'status': 'complete',
-        'pages': [{
-            'page_id': 1,
-            'name': 'Mo dau',
-            'link': 'http://...',
-            'content': 'cong hoa x\nas\nxa\nsx\nsxa\nss\nxaxas'
-        },{
-            'page_id': 2,
-            'name': 'Thanh vuc cuong gia',
-            'link': 'http://...',
-            'content': 'Page 2'
-        },{
-            'page_id': 3,
-            'name': 'Du dau',
-            'link': 'http://...',
-            'content': 'Page 3'
-        },{
-            'page_id': 4,
-            'name': 'O son tran',
-            'link': 'http://...',
-            'content': None
-        }]
-    }
+    data = {}
+    __sstruyen = 'http://sstruyen.com'
+
+    web_list_pages = requests.get(link).text
+    jq = PyQuery(web_list_pages)
+
+    # find info
+    data['name'] = jq('h1.title a')[0].text
+    data['author'] = jq('span[itemprop="name"]')[0].text
+    
+    # after a while
+    data['status'] = ''
+    data['number_page'] = 0
+    data['pages'] = []
+
+    # find index
+    nav_div = jq('.page-split')[0]
+    min_page = 1
+    first_page = __sstruyen + nav_div[0].attrib['href']
+    max_page = int(nav_div[-1].text)
+    link_right = first_page.split('/page-')[-1]
+    left = first_page[0:-len(link_right)]
+    links_web_list_page = [left+str(i)+'.html#chaplist' for i in range(0, max_page)]
+    
+    page_ids = []
+    for link in links_web_list_page:
+        web = requests.get(link).text
+        jq = PyQuery(web)
+        div_list = jq('.chuongmoi div a')
+        for div in div_list:
+            page_id = int(div.findall('div')[0].text[0:-1])
+            
+            if page_id not in page_ids:
+                page_ids.append(page_id)
+                data['number_page'] += 1
+                name = div.attrib['title']
+                href = div.attrib['href']
+                text_href = 'http://cf.sstruyen.com/doc-truyen/index.php?ajax=ct&id=' \
+                        + href.split('/')[-1][0:-5] + '&t=00000000000000'
+                data['pages'].append({
+                    'page_id': int(page_id),
+                    'name': name,
+                    'link': text_href,
+                    'content': None
+                })
+
+    return data
 
 
 def _download_content(link):
-    return 'Page downloaded'
+    return requests.get(link).text[27:-6].replace('<p>', '').replace('</p>', '\n')
 
 
 def _get_history(book_id=None):
@@ -170,6 +190,7 @@ def read_page(book_id, page_id):
         if content:
             db_pages.update({'content': content, 'downloaded': True}, (q.book_id == book_id) & (q.page_id == page_id))
             page_view = content
+    click.clear()
     click.secho('Chuong %r/%r: %s' % (page['page_id'], book['number_page'], page['name']), bg='blue', bold=True)
     click.secho(page_view)
 

@@ -8,7 +8,7 @@ setup(
         'Click',
         'colorama',
         'requests',
-        'beautifulsoup4',
+        'pyquery',
         'tinydb'
     ],
     entry_points='''
