@@ -6,10 +6,13 @@ setup(
     packages=['sstruyen'],
     install_requires=[
         'Click',
+        'colorama',
         'requests',
+        'beautifulsoup4',
+        'tinydb'
     ],
     entry_points='''
         [console_scripts]
-        sst=sstruyen.cli:main
+        sst=sstruyen.cli:cli
     '''
 )
