@@ -17,8 +17,8 @@ def library():
     commands.view_library()
 
 
-@cli.command()
-@click.option('--link', required=True, help='Need a link of book for crawl data')
+@cli.command('a')
+@click.argument('link', required=True, nargs=1)
 def add(link):
     '''
         Add book to library
@@ -27,7 +27,7 @@ def add(link):
 
 
 @cli.command('r')
-@click.option('--book', default='current', help='Book id to read other book, avoid it if you are reading')
+@click.argument('book', default='current', nargs=1)
 def read(book):
     '''
         Read book
@@ -59,7 +59,7 @@ def prev_page():
     commands.prev_page()
 
 @cli.command('g')
-@click.option('--page', default=-1, help='Page number you want go to')
+@click.argument('page', default=-1, nargs=1)
 def go_to_page(page):
     '''
         Go to page

@@ -1,10 +1,14 @@
 import requests
 import click
 import re
+import os
 from pyquery import PyQuery
 from tinydb import TinyDB, Query
 
-db = TinyDB('db.json')
+data_folder = '~/.sst'
+if not os.path.exists(data_folder):
+    os.makedirs(data_folder) 
+db = TinyDB(data_folder + '/db.json')
 db_books = db.table('books')
 db_pages = db.table('pages')
 db_current = db.table('current')
