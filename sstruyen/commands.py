@@ -5,9 +5,10 @@ import os
 from pyquery import PyQuery
 from tinydb import TinyDB, Query
 
-data_folder = '~/.sst'
+data_folder = os.path.expanduser('~') + '/.sst'
 if not os.path.exists(data_folder):
-    os.makedirs(data_folder) 
+    os.makedirs(data_folder)
+     
 db = TinyDB(data_folder + '/db.json')
 db_books = db.table('books')
 db_pages = db.table('pages')
@@ -182,7 +183,7 @@ def read_book(doc_id):
         book_id = db_books.get(doc_id=int(doc_id))['book_id']
         reading = _get_history(book_id)
         _set_history(book_id, reading['page_id'])
-        read_page(reading['book_id'], 1)
+        read_page(reading['book_id'], reading['page_id'])
 
 
 def read_page(book_id, page_id):
