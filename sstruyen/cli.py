@@ -58,6 +58,7 @@ def prev_page():
     '''
     commands.prev_page()
 
+
 @cli.command('g')
 @click.argument('page', default=-1, nargs=1)
 def go_to_page(page):
@@ -65,3 +66,10 @@ def go_to_page(page):
         Go to page
     '''
     commands.go_to_page(page)
+
+@cli.command('d')
+def download():
+    '''
+        Download content current book
+    '''
+    commands.download_current_book()

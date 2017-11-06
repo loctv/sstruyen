@@ -194,7 +194,9 @@ def read_page(book_id, page_id):
     if not page['downloaded']:
         content = _download_content(page['link'])
         if content:
-            db_pages.update({'content': content, 'downloaded': True}, (q.book_id == book_id) & (q.page_id == page_id))
+            db_pages.update(
+                {'content': content, 'downloaded': True}, 
+                (q.book_id == book_id) & (q.page_id == page_id))
             page_view = content
     if not page_view:
         page_view = 'Can not get content for this page'
@@ -220,6 +222,26 @@ def prev_page():
     go_to_page(page_id - 1)
     # TODO: validate page
 
+def download_current_book():
+    reading = _get_history()
+    if not reading:
+        print 'Please read to open book before download content'
+    else:
+        book_id = reading['book_id']
+        pages = db_pages.search((q.book_id == book_id) & (q.downloaded == False))
+        number = len(pages)
+        count = 0
+        for page in pages:
+            content = _download_content(page['link'])
+            if content:
+                db_pages.update(
+                    {'content': content, 'downloaded': True}, 
+                    (q.book_id == book_id) & (q.page_id == page['page_id'])
+                )
+                count += 1
+                print 'Downloaded %d/%d pages.' % (count, number)
+
+        
 def view_index():
     reading = _get_history()
     if not reading:
