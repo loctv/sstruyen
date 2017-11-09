@@ -128,7 +128,8 @@ def add_book_from_link(link):
     print 'Add book from: %s' % link
     ss_id = _parse_ss_id(link)
     if not ss_id:
-        raise 'Link invalid!'
+        print 'ERROR: The URL from sstruyen.com was incorrect.'
+        return
    
     info = _crawl_book_info(link)
     if not db_books.search(q.book_id == ss_id):
@@ -180,7 +181,12 @@ def read_book(doc_id):
         else:
             print 'You have not read any book previous, please choose a book to read'
     else:
-        book_id = db_books.get(doc_id=int(doc_id))['book_id']
+        book_id = None
+        try:
+            book_id = db_books.get(doc_id=int(doc_id))['book_id']
+        except Exception as e:
+            print "ERROR: The id was incorrect. Please choose book id list by command 'l'"
+            return
         reading = _get_history(book_id)
         _set_history(book_id, reading['page_id'])
         read_page(reading['book_id'], reading['page_id'])
