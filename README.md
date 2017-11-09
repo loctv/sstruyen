@@ -1,8 +1,21 @@
 
 # SST tool
-This is simple command line tool to reading from [sstruyen.com](http://sstruyen.com)
+This is simple command line tool to read book from [sstruyen.com](http://sstruyen.com)
 
 _Status: In development_
+
+#### Install:
+
+```bash
+> git clone https://github.com/loctv/sstruyen.git
+> cd sstruyen
+> pip install .
+> sst --help
+```
+
+*In first time launch command 'sst', it will create a file store at ~/.sst/db.json. You must create folder ~/.sst by hand if error occured.*
+
+#### Use:
 
 ```bash
 > sst --help 
